@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>frikibixBox — Официальный магазин БоксПВП</title>
+    <title>PrimeBox — Официальный магазин БоксПВП</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Подключаем CryptoJS для генерации HMAC-MD5 подписи WayForPay -->
@@ -111,7 +111,7 @@
                 </div>
                 <div>
                     <div class="flex items-center space-x-2">
-                        <span class="font-extrabold text-lg text-white tracking-wide">frikibixBox</span>
+                        <span class="font-extrabold text-lg text-white tracking-wide">PrimeBox</span>
                         <span class="text-xs text-gray-400 font-semibold uppercase px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/50">- БОКСПВП</span>
                     </div>
                     <p class="text-xs text-gray-400 font-medium">Официальный магазин</p>
@@ -155,7 +155,7 @@
                 
                 <div class="flex items-center space-x-2 text-blue-400 font-bold text-sm bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full mb-4">
                     <i class="fa-solid fa-fire"></i>
-                    <span>frikibixBox 1.16.5 - 1.21.8</span>
+                    <span>PrimeBox 1.16.5 - 1.21.8</span>
                 </div>
 
                 <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-6">
@@ -204,56 +204,4 @@
                         <span>Количество</span>
                         <span id="slider-val-label" class="font-bold text-white">50</span>
                     </div>
-                    <input type="range" id="crystal-range" min="50" max="1000" step="10" value="50" oninput="updateCalculator()">
-                    <div class="flex justify-between items-center text-[10px] text-gray-500 mt-1 font-semibold">
-                        <span>50</span>
-                        <span>500</span>
-                        <span>1000</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end border-t lg:border-t-0 border-slate-800 pt-4 lg:pt-0">
-                    <div class="flex gap-4">
-                        <div class="bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800 text-center">
-                            <span class="block text-[10px] text-gray-500 font-semibold uppercase">Отдаёте</span>
-                            <span id="calc-price" class="font-black text-sm text-white">50 ₴</span>
-                        </div>
-                        <div class="bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800 text-center">
-                            <span class="block text-[10px] text-gray-500 font-semibold uppercase">Получаете</span>
-                            <span id="calc-crystals" class="font-black text-sm text-blue-400">50 🥖</span>
-                        </div>
-                    </div>
-
-                    <button onclick="addCustomCrystalsToCart()" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold px-6 py-3 rounded-xl transition-all shadow-lg shadow-blue-600/30 flex items-center space-x-2 shrink-0">
-                        <span>Приобрести — <span id="btn-calc-price">50 ₴</span></span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- MAIN CONTENT: SIDEBAR & GRID -->
-        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row gap-8">
-            <aside class="w-full md:w-64 shrink-0 space-y-6">
-                <div>
-                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Выберите категорию</h3>
-                    <div class="space-y-1.5" id="category-filters">
-                        <button onclick="setCategory('all')" id="cat-btn-all" class="cat-filter-btn active w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold bg-blue-600 text-white transition-all">
-                            <span class="flex items-center space-x-3">
-                                <i class="fa-solid fa-border-all text-xs"></i>
-                                <span>Все товары</span>
-                            </span>
-                        </button>
-
-                        <button onclick="setCategory('privileges')" id="cat-btn-privileges" class="cat-filter-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 bg-slate-900/60 hover:bg-slate-800 hover:text-white border border-slate-800 transition-all">
-                            <span class="flex items-center space-x-3">
-                                <i class="fa-solid fa-crown text-xs"></i>
-                                <span>Привилегии</span>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Выберите режим</h3>
-                    <div class="space-y-1.5">
-                        <button class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold
+                    <input type="range" id="crystal-range" min="50" max="100
