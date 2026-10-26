@@ -163,9 +163,9 @@
                 </h1>
 
                 <div class="flex flex-wrap items-center justify-center gap-3">
-                    <button onclick="copyToClipboard('https://ewnec.github.io/frikibixbox/')" class="flex items-center space-x-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 px-4 py-2.5 rounded-2xl transition-all group">
+                    <button onclick="copyToClipboard('https://primeb0x.github.io/PrimeBox/')" class="flex items-center space-x-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 px-4 py-2.5 rounded-2xl transition-all group">
                         <i class="fa-solid fa-globe text-blue-400 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-sm font-bold text-gray-200">ewnec.github.io/frikibixbox/</span>
+                        <span class="text-sm font-bold text-gray-200">primeb0x.github.io/PrimeBox/</span>
                         <i class="fa-regular fa-copy text-xs text-gray-400 group-hover:text-white"></i>
                     </button>
 
@@ -457,7 +457,7 @@
                         <div class="flex items-center justify-between border-t border-slate-800/80 pt-3 mt-auto">
                             <div>
                                 ${product.oldPrice ? `<span class="text-[11px] text-gray-500 line-through block font-medium">${product.oldPrice}</span>` : ''}
-                                <span class="text-sm font-black text-white">${product.price} ${product.currency}</span>
+                                <span class="text-sm font-black text-white">${product.price}${product.currency}</span>
                             </div>
                             <button onclick="addToCart(${product.id})" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-blue-600/30">
                                 Купить
@@ -519,180 +519,4 @@
             if (cart.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-8 text-gray-500">
-                        <i class="fa-solid fa-cart-flatbed text-3xl mb-2"></i>
-                        <p class="text-sm font-semibold">Ваша корзина пуста</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = '';
-            cart.forEach(item => {
-                container.innerHTML += `
-                    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <img src="${item.skinUrl}" alt="skin" class="w-10 h-10 rounded-xl mc-head bg-slate-800 border border-slate-700">
-                            <div>
-                                <h4 class="text-sm font-extrabold text-white">${item.title}</h4>
-                                <span class="text-xs text-gray-400">${item.details}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center space-x-4">
-                            <div class="text-right">
-                                ${item.oldPrice ? `<span class="text-[10px] text-gray-500 line-through block">${item.oldPrice}</span>` : ''}
-                                <span class="text-sm font-black text-blue-400">${item.price} ${item.currency}</span>
-                            </div>
-                            <button onclick="removeFromCart(${item.cartItemId})" class="text-gray-500 hover:text-red-500 transition-colors">
-                                <i class="fa-regular fa-trash-can text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function openCartModal() {
-            renderCartModalItems();
-            document.getElementById('cart-modal').classList.remove('hidden');
-        }
-
-        function closeCartModal() {
-            document.getElementById('cart-modal').classList.add('hidden');
-        }
-
-        function selectPayment(method) {
-            document.getElementById('pay-world').classList.remove('selected');
-            document.getElementById('pay-mc').classList.remove('selected');
-
-            if (method === 'world') {
-                document.getElementById('pay-world').classList.add('selected');
-            } else {
-                document.getElementById('pay-mc').classList.add('selected');
-            }
-        }
-
-        function setCategory(cat) {
-            currentCategory = cat;
-            renderProducts();
-
-            const buttons = document.querySelectorAll('.cat-filter-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white', 'font-bold');
-                btn.classList.add('bg-slate-900/60', 'text-gray-400', 'font-semibold');
-            });
-
-            const activeBtn = document.getElementById(`cat-btn-${cat}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('bg-slate-900/60', 'text-gray-400', 'font-semibold');
-                activeBtn.classList.add('bg-blue-600', 'text-white', 'font-bold');
-            }
-        }
-
-        function updateCalculator() {
-            const val = document.getElementById('crystal-range').value;
-            document.getElementById('slider-crystals-title').innerText = `${val} Сухариков`;
-            document.getElementById('slider-val-label').innerText = val;
-            document.getElementById('calc-price').innerText = `${val} ₴`;
-            document.getElementById('calc-crystals').innerText = `${val} 🥖`;
-            document.getElementById('btn-calc-price').innerText = `${val} ₴`;
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("Скопировано в буфер обмена!");
-            });
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = msg;
-            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-[-100px]', 'opacity-0');
-            }, 2500);
-        }
-
-        /* WAYFORPAY SECURE CHECKOUT WITH HASH SIGNATURE */
-        function handleCartSubmit(e) {
-            e.preventDefault();
-            
-            if (cart.length === 0) {
-                showToast("Корзина пуста!");
-                return;
-            }
-
-            const nickname = document.getElementById('cart-nickname').value.trim();
-            const email = document.getElementById('cart-email').value.trim();
-            const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
-            const itemsList = cart.map(item => item.title).join(', ');
-
-            const merchantAccount = "ewnec_github_io"; 
-            const merchantDomainName = "ewnec.github.io";
-            const orderReference = "BOX_" + Date.now();
-            const orderDate = Math.floor(Date.now() / 1000);
-            const amount = totalAmount;
-            const currency = "UAH";
-            const productName = itemsList;
-            const productCount = 1;
-            const productPrice = totalAmount;
-            const secretKey = "9cc2d27a3854fb947f42baff20eef9be2932126d";
-
-            // Генерация сигнатуры (HMAC-MD5) для WayForPay
-            const signatureString = [
-                merchantAccount,
-                merchantDomainName,
-                orderReference,
-                orderDate,
-                amount,
-                currency,
-                productName,
-                productCount,
-                productPrice
-            ].join(';');
-
-            const merchantSignature = CryptoJS.HmacMD5(signatureString, secretKey).toString(CryptoJS.enc.Hex);
-
-            // Создаем форму для отправки запроса на оплату
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'https://secure.wayforpay.com/pay';
-            form.acceptCharset = 'utf-8';
-
-            const fields = {
-                merchantAccount: merchantAccount,
-                merchantDomainName: merchantDomainName,
-                orderReference: orderReference,
-                orderDate: orderDate,
-                amount: amount,
-                currency: currency,
-                productName: productName,
-                productCount: productCount,
-                productPrice: productPrice,
-                clientEmail: email,
-                clientFirstName: nickname,
-                merchantSignature: merchantSignature
-            };
-
-            for (const key in fields) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = fields[key];
-                form.appendChild(input);
-            }
-
-            document.body.appendChild(form);
-            form.submit();
-        }
-
-        window.onload = function() {
-            renderProducts();
-            updateCalculator();
-        };
-    </script>
-</body>
-</html>
+                        <i class="fa-solid fa-cart-flatbed
