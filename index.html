@@ -613,20 +613,89 @@
     <div class="modal-overlay" id="modalStep1">
         <div class="modal-card">
             <button class="close-btn" onclick="closeModal('modalStep1')">✕</button>
-            <div id="modalStep1Content"></div>
+            <div class="modal-grid">
+                <div>
+                    <div class="step-title" id="m1Title">Выбор длительности</div>
+                    <div class="step-subtitle" id="m1Sub">Выберите срок привилегии</div>
+                    
+                    <div class="duration-options" id="m1Options">
+                        <!-- Динамически заполняется -->
+                    </div>
+                </div>
+                <div>
+                    <div class="preview-box" id="m1IconBox">
+                        <!-- Иконка -->
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Ваш игровой ник</label>
+                        <input type="text" class="form-input" id="m1Username" placeholder="Введите ник...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Промокод</label>
+                        <input type="text" class="form-input" id="m1Promo" placeholder="Есть промокод?">
+                    </div>
+                    <button class="submit-btn" onclick="goToStep2()">Продолжить</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- ШАГ 2 МОДАЛКИ -->
+    <!-- ШАГ 2 МОДАЛКИ (ОПЛАТА) -->
     <div class="modal-overlay" id="modalStep2">
-        <div class="modal-card">
+        <div class="modal-card" style="max-width: 500px;">
             <button class="close-btn" onclick="closeModal('modalStep2')">✕</button>
-            <div id="modalStep2Content"></div>
+            <div class="step-title" style="margin-bottom: 6px;">Выберите способ оплаты</div>
+            <div class="step-subtitle" id="m2Sub">Товар: ...</div>
+
+            <div class="pay-method-tabs">
+                <div class="pay-tab-btn active" onclick="setPayMethod('wayforpay', this)">WayForPay</div>
+                <div class="pay-tab-btn" onclick="setPayMethod('crypto', this)">TON / Crypto</div>
+            </div>
+
+            <div id="wayforpayBlock">
+                <button class="submit-btn" onclick="payWayForPay()" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">Оплатить через WayForPay</button>
+            </div>
+            
+            <div id="cryptoBlock" style="display: none;">
+                <div id="ton-connect-button" style="margin-bottom: 15px; display: flex; justify-content: center;"></div>
+                <button class="submit-btn" onclick="payCrypto()" style="background: linear-gradient(135deg, #0098EA, #0070BA);">Оплатить через TON</button>
+            </div>
+
+            <button class="back-btn" onclick="backToStep1()">← Назад к выбору</button>
         </div>
     </div>
 
     <script>
-        // JS функции твоего сайта
+        // TON Connect UI Инициализация
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://pr1mebox.store/tonconnect-manifest.json',
+            uiPreferences: { theme: 'DARK' }
+        });
+
+        let currentCart = {
+            title: '',
+            price: 0,
+            iconSvg: '',
+            username: '',
+            promo: '',
+            durationText: ''
+        };
+
+        let selectedPayMethod = 'wayforpay';
+
+        function setPayMethod(method, el) {
+            selectedPayMethod = method;
+            document.querySelectorAll('.pay-tab-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            if(method === 'wayforpay') {
+                document.getElementById('wayforpayBlock').style.display = 'block';
+                document.getElementById('cryptoBlock').style.display = 'none';
+            } else {
+                document.getElementById('wayforpayBlock').style.display = 'none';
+                document.getElementById('cryptoBlock').style.display = 'block';
+            }
+        }
+
         function switchTab(index, btn) {
             document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -644,57 +713,159 @@
             setTimeout(() => { location.reload(); }, 300);
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function openPrivilegeModal(title, iconType, p1, p2, p3) {
+            currentCart.title = title;
+            document.getElementById('m1Title').innerText = title;
+            document.getElementById('m1Sub').innerText = 'Выберите срок привилегии';
+            
+            let iconSvg = '';
+            if(iconType === 'elytra') iconSvg = document.querySelector('#tab-0 .product-card:nth-child(1) svg').outerHTML;
+            if(iconType === 'totem') iconSvg = document.querySelector('#tab-0 .product-card:nth-child(2) svg').outerHTML;
+            if(iconType === 'eye') iconSvg = document.querySelector('#tab-0 .product-card:nth-child(3) svg').outerHTML;
+            if(iconType === 'heart') iconSvg = document.querySelector('#tab-0 .product-card:nth-child(4) svg').outerHTML;
+            if(iconType === 'fire') iconSvg = document.querySelector('#tab-0 .product-card:nth-child(5) svg').outerHTML;
+            currentCart.iconSvg = iconSvg;
+            document.getElementById('m1IconBox').innerHTML = iconSvg;
+
+            const optionsHTML = `
+                <div class="duration-item selected" onclick="selectDuration(this, 30, ${p1})">
+                    <div><span class="radio-dot"></span><span>30 дней</span></div>
+                    <strong>${p1} ₴</strong>
+                </div>
+                <div class="duration-item" onclick="selectDuration(this, 90, ${p2})">
+                    <div><span class="radio-dot"></span><span>90 дней</span></div>
+                    <strong>${p2} ₴</strong>
+                </div>
+                <div class="duration-item" onclick="selectDuration(this, 365, ${p3})">
+                    <div><span class="radio-dot"></span><span>Навсегда</span></div>
+                    <strong>${p3} ₴</strong>
+                </div>
+            `;
+            document.getElementById('m1Options').innerHTML = optionsHTML;
+            currentCart.price = p1;
+            currentCart.durationText = '30 дней';
+
+            document.getElementById('modalStep1').classList.add('active');
         }
 
         function openDirectModal(title, price) {
-            const modal = document.getElementById('modalStep1');
-            const content = document.getElementById('modalStep1Content');
-            content.innerHTML = `
-                <div class="step-title">Покупка: ${title}</div>
-                <div class="step-subtitle">Цена: ${price} ₴</div>
-                <div class="form-group">
-                    <label class="form-label">Ваш ник в Minecraft</label>
-                    <input type="text" class="form-input" id="playerNick" placeholder="Введите ник...">
+            currentCart.title = title;
+            currentCart.price = price;
+            currentCart.durationText = '';
+            
+            document.getElementById('m1Title').innerText = title;
+            document.getElementById('m1Sub').innerText = 'Покупка без выбора срока';
+            
+            let iconSvg = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#2563eb"/></svg>';
+            currentCart.iconSvg = iconSvg;
+            document.getElementById('m1IconBox').innerHTML = iconSvg;
+
+            const optionsHTML = `
+                <div class="duration-item selected" style="cursor: default;">
+                    <div><span>Стоимость товара</span></div>
+                    <strong>${price} ₴</strong>
                 </div>
-                <button class="submit-btn" onclick="alert('Переход к оплате...')">Оплатить ${price} ₴</button>
             `;
-            modal.classList.add('active');
+            document.getElementById('m1Options').innerHTML = optionsHTML;
+            document.getElementById('modalStep1').classList.add('active');
         }
 
-        function openPrivilegeModal(title, icon, p1, p2, p3) {
-            const modal = document.getElementById('modalStep1');
-            const content = document.getElementById('modalStep1Content');
-            content.innerHTML = `
-                <div class="step-title">Привилегия: ${title}</div>
-                <div class="step-subtitle">Выберите срок или уровень</div>
-                <div class="duration-options">
-                    <div class="duration-item selected" onclick="selectDur(this)">
-                        <span><span class="radio-dot"></span> 30 дней</span>
-                        <strong>${p1} ₴</strong>
-                    </div>
-                    <div class="duration-item" onclick="selectDur(this)">
-                        <span><span class="radio-dot"></span> 90 дней</span>
-                        <strong>${p2} ₴</strong>
-                    </div>
-                    <div class="duration-item" onclick="selectDur(this)">
-                        <span><span class="radio-dot"></span> Навсегда</span>
-                        <strong>${p3} ₴</strong>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 16px;">
-                    <label class="form-label">Ваш ник в Minecraft</label>
-                    <input type="text" class="form-input" id="playerNick" placeholder="Введите ник...">
-                </div>
-                <button class="submit-btn" onclick="alert('Переход к оплате...')">Продолжить</button>
-            `;
-            modal.classList.add('active');
-        }
-
-        function selectDur(el) {
+        function selectDuration(el, days, price) {
             document.querySelectorAll('.duration-item').forEach(i => i.classList.remove('selected'));
             el.classList.add('selected');
+            currentCart.price = price;
+            currentCart.durationText = days === 365 ? 'Навсегда' : days + ' дней';
+        }
+
+        function goToStep2() {
+            const nick = document.getElementById('m1Username').value.trim();
+            if(!nick) {
+                alert('Пожалуйста, введите ваш ник в Minecraft!');
+                return;
+            }
+            currentCart.username = nick;
+            currentCart.promo = document.getElementById('m1Promo').value.trim();
+
+            closeModal('modalStep1');
+            document.getElementById('m2Sub').innerText = `${currentCart.title} ${currentCart.durationText ? '('+currentCart.durationText+')' : ''} — ${currentCart.price} ₴ | Ник: ${currentCart.username}`;
+            document.getElementById('modalStep2').classList.add('active');
+        }
+
+        function backToStep1() {
+            closeModal('modalStep2');
+            document.getElementById('modalStep1').classList.add('active');
+        }
+
+        function payWayForPay() {
+            const merchantAccount = "pr1mebox_store";
+            const merchantDomainName = "pr1mebox.store";
+            const orderReference = "ORDER_" + new Date().getTime();
+            const orderDate = Math.floor(Date.now() / 1000);
+            const amount = currentCart.price;
+            const currency = "UAH";
+            const productName = currentCart.title + (currentCart.durationText ? ' ('+currentCart.durationText+')' : '');
+            const productCount = 1;
+            const productPrice = currentCart.price;
+
+            const wayforpay = new Wayforpay();
+            wayforpay.run({
+                merchantAccount: merchantAccount,
+                merchantDomainName: merchantDomainName,
+                authorizationType: "SimpleSignature",
+                orderReference: orderReference,
+                orderDate: orderDate,
+                amount: amount,
+                currency: currency,
+                productName: [productName],
+                productPrice: [productPrice],
+                productCount: [productCount],
+                clientFirstName: currentCart.username,
+                clientEmail: "player@pr1mebox.store",
+                clientPhone: "380000000000"
+            },
+            function (response) {
+                alert("Оплата прошла успешно! Привилегия выдается на сервере.");
+                closeModal('modalStep2');
+            },
+            function (response) {
+                alert("Оплата отменена или произошла ошибка.");
+            },
+            function (response) {
+                alert("Ошибка соединения с платежной системой.");
+            });
+        }
+
+        async function payCrypto() {
+            try {
+                if (!tonConnectUI.connected) {
+                    await tonConnectUI.openModal();
+                    return;
+                }
+                const UAH_TO_TON_RATE = 100; 
+                const tonAmount = (currentCart.price / UAH_TO_TON_RATE).toFixed(2);
+                const nanoTon = Math.floor(tonAmount * 1000000000).toString();
+
+                const transaction = {
+                    validUntil: Math.floor(Date.now() / 1000) + 600,
+                    messages: [
+                        {
+                            address: "UQBy...ваш_кошелек_сюда...",
+                            amount: nanoTon
+                        }
+                    ]
+                };
+
+                const result = await tonConnectUI.sendTransaction(transaction);
+                alert('Оплата криптовалютой прошла успешно!');
+                closeModal('modalStep2');
+            } catch (e) {
+                console.log(e);
+                alert('Ошибка оплаты через TON или транзакция отменена.');
+            }
         }
 
         function onSliderMove(val) {
@@ -713,7 +884,18 @@
         }
 
         function updateAllPrices() {
-            // Заглушка под смену валюты
+            const currency = document.getElementById('currencySelect').value;
+            const prices = document.querySelectorAll('.price-val');
+            prices.forEach(el => {
+                let uah = parseFloat(el.getAttribute('data-uah'));
+                if(currency === 'RUB') {
+                    el.innerText = Math.round(uah * 2.3) + ' ₽';
+                } else if(currency === 'USD') {
+                    el.innerText = (uah / 41).toFixed(1) + ' $';
+                } else {
+                    el.innerText = uah + ' ₴';
+                }
+            });
         }
     </script>
 </body>
