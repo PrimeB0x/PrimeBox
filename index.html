@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrimeBox — Официальный сайт</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- TON Connect UI SDK -->
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
         :root {
             --bg: #09090c;
@@ -648,17 +646,19 @@
             <div class="step-subtitle" id="m2Sub">Товар: ...</div>
 
             <div class="pay-method-tabs">
-                <div class="pay-tab-btn active" onclick="setPayMethod('wayforpay', this)">WayForPay</div>
-                <div class="pay-tab-btn" onclick="setPayMethod('crypto', this)">TON / Crypto</div>
+                <div class="pay-tab-btn active" onclick="setPayMethod('donatello', this)">Donatello (Карта / UAH)</div>
+                <div class="pay-tab-btn" onclick="setPayMethod('crypto', this)">TON Crypto</div>
             </div>
 
-            <div id="wayforpayBlock">
-                <button class="submit-btn" onclick="payWayForPay()" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">Оплатить через WayForPay</button>
+            <div id="donatelloBlock">
+                <button class="submit-btn" onclick="payDonatello()" style="background: linear-gradient(135deg, #f59e0b, #d97706);">Оплатить через Donatello</button>
             </div>
             
             <div id="cryptoBlock" style="display: none;">
-                <div id="ton-connect-button" style="margin-bottom: 15px; display: flex; justify-content: center;"></div>
-                <button class="submit-btn" onclick="payCrypto()" style="background: linear-gradient(135deg, #0098EA, #0070BA);">Оплатить через TON</button>
+                <div style="background: #08080c; border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px; word-break: break-all; font-size: 13px; color: var(--sub); text-align: center;">
+                    Кошелек для перевода TON:<br><strong style="color: #60a5fa;" id="walletText">UQAxLYOYVyD2n6dqzyF4OeGapfDXeXIrzr_GFUHYtpNv2HgP</strong>
+                </div>
+                <button class="submit-btn" onclick="payCrypto()" style="background: linear-gradient(135deg, #0098EA, #0070BA);">Скопировать адрес и оплатить</button>
             </div>
 
             <button class="back-btn" onclick="backToStep1()">← Назад к выбору</button>
@@ -666,12 +666,6 @@
     </div>
 
     <script>
-        // TON Connect UI Инициализация
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://pr1mebox.store/tonconnect-manifest.json',
-            uiPreferences: { theme: 'DARK' }
-        });
-
         let currentCart = {
             title: '',
             price: 0,
@@ -681,17 +675,17 @@
             durationText: ''
         };
 
-        let selectedPayMethod = 'wayforpay';
+        let selectedPayMethod = 'donatello';
 
         function setPayMethod(method, el) {
             selectedPayMethod = method;
             document.querySelectorAll('.pay-tab-btn').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
-            if(method === 'wayforpay') {
-                document.getElementById('wayforpayBlock').style.display = 'block';
+            if(method === 'donatello') {
+                document.getElementById('donatelloBlock').style.display = 'block';
                 document.getElementById('cryptoBlock').style.display = 'none';
             } else {
-                document.getElementById('wayforpayBlock').style.display = 'none';
+                document.getElementById('donatelloBlock').style.display = 'none';
                 document.getElementById('cryptoBlock').style.display = 'block';
             }
         }
@@ -800,72 +794,19 @@
             document.getElementById('modalStep1').classList.add('active');
         }
 
-        function payWayForPay() {
-            const merchantAccount = "pr1mebox_store";
-            const merchantDomainName = "pr1mebox.store";
-            const orderReference = "ORDER_" + new Date().getTime();
-            const orderDate = Math.floor(Date.now() / 1000);
-            const amount = currentCart.price;
-            const currency = "UAH";
-            const productName = currentCart.title + (currentCart.durationText ? ' ('+currentCart.durationText+')' : '');
-            const productCount = 1;
-            const productPrice = currentCart.price;
-
-            const wayforpay = new Wayforpay();
-            wayforpay.run({
-                merchantAccount: merchantAccount,
-                merchantDomainName: merchantDomainName,
-                authorizationType: "SimpleSignature",
-                orderReference: orderReference,
-                orderDate: orderDate,
-                amount: amount,
-                currency: currency,
-                productName: [productName],
-                productPrice: [productPrice],
-                productCount: [productCount],
-                clientFirstName: currentCart.username,
-                clientEmail: "player@pr1mebox.store",
-                clientPhone: "380000000000"
-            },
-            function (response) {
-                alert("Оплата прошла успешно! Привилегия выдается на сервере.");
-                closeModal('modalStep2');
-            },
-            function (response) {
-                alert("Оплата отменена или произошла ошибка.");
-            },
-            function (response) {
-                alert("Ошибка соединения с платежной системой.");
-            });
+        function payDonatello() {
+            const productName = `${currentCart.title}${currentCart.durationText ? ' ('+currentCart.durationText+')' : ''}`;
+            const message = `Покупка: ${productName} | Ник: ${currentCart.username}`;
+            const donatelloUrl = `https://donatello.to/PrimeBox?amount=${currentCart.price}&message=${encodeURIComponent(message)}`;
+            window.open(donatelloUrl, '_blank');
         }
 
-        async function payCrypto() {
-            try {
-                if (!tonConnectUI.connected) {
-                    await tonConnectUI.openModal();
-                    return;
-                }
-                const UAH_TO_TON_RATE = 100; 
-                const tonAmount = (currentCart.price / UAH_TO_TON_RATE).toFixed(2);
-                const nanoTon = Math.floor(tonAmount * 1000000000).toString();
-
-                const transaction = {
-                    validUntil: Math.floor(Date.now() / 1000) + 600,
-                    messages: [
-                        {
-                            address: "UQBy...ваш_кошелек_сюда...",
-                            amount: nanoTon
-                        }
-                    ]
-                };
-
-                const result = await tonConnectUI.sendTransaction(transaction);
-                alert('Оплата криптовалютой прошла успешно!');
-                closeModal('modalStep2');
-            } catch (e) {
-                console.log(e);
-                alert('Ошибка оплаты через TON или транзакция отменена.');
-            }
+        function payCrypto() {
+            const wallet = document.getElementById('walletText').innerText;
+            navigator.clipboard.writeText(wallet);
+            const UAH_TO_TON_RATE = 100; // Примерный курс, можно скорректировать
+            const tonAmount = (currentCart.price / UAH_TO_TON_RATE).toFixed(2);
+            alert(`Адрес кошелька скопирован в буфер обмена!\nПереведите примерно ${tonAmount} TON на кошелек:\n${wallet}\n\nУкажите в комментарии к переводу ваш ник: ${currentCart.username}`);
         }
 
         function onSliderMove(val) {
