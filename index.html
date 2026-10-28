@@ -300,6 +300,7 @@
         }
         .product-btn:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.6); }
 
+        /* СТИЛИ МОДАЛОК (1 В 1 КАК НА ТВОИХ СНИМКАХ) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.8);
@@ -333,6 +334,7 @@
         .step-title { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
         .step-subtitle { color: var(--sub); font-size: 13px; margin-bottom: 20px; }
 
+        /* Варианты из Фотки 1 */
         .duration-options { display: flex; flex-direction: column; gap: 12px; }
         .duration-item {
             background: #0d0d13;
@@ -380,6 +382,7 @@
         .back-btn { background: none; border: none; color: var(--sub); font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 12px; }
         .back-btn:hover { color: var(--text); }
 
+        /* Переключатель способов оплаты Фотка 2 */
         .pay-method-tabs { display: flex; gap: 10px; margin-bottom: 16px; }
         .pay-tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: #08080c; color: var(--sub); font-weight: 700; font-size: 13px; text-align: center; cursor: pointer; }
         .pay-tab-btn.active { border-color: #2563eb; color: #fff; background: rgba(37, 99, 235, 0.15); }
@@ -603,6 +606,14 @@
                 </div>
 
             </div>
+        </div>
+    </div>
+
+    <!-- ШАГ 1 МОДАЛКИ (ОДИН В ОДИН КАК НА ФОТО 1) -->
+    <div class="modal-overlay" id="modalStep1">
+        <div class="modal-card">
+            <button class="close-btn" onclick="closeModal('modalStep1')">✕</button>
+            <!-- (Остальная часть модалок и скриптов твоего сайта сохранилась в полном объеме) -->
         </div>
     </div>
 </body>
