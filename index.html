@@ -3,684 +3,872 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrimeBox — Официальный магазин БоксПВП</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CryptoJS для WayForPay HMAC-MD5 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <title>PrimeBox — Официальный сайт</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- TON Connect UI SDK -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #07090e;
-            color: #f1f5f9;
+        :root {
+            --bg: #09090c;
+            --card: rgba(20, 20, 28, 0.65);
+            --card-hover: rgba(30, 30, 42, 0.85);
+            --text: #ffffff;
+            --sub: #9494a0;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --border: rgba(255, 255, 255, 0.08);
+            --modal-bg: rgba(18, 18, 26, 0.95);
+            --input-bg: rgba(12, 12, 18, 0.8);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 60px; overflow-x: hidden; }
+
+        body.reloading {
+            opacity: 0;
+            transform: scale(0.98);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-3d {
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            color: #111;
+            font-weight: 900;
+            font-size: 22px;
+            padding: 10px 22px;
+            border-radius: 16px;
+            box-shadow: 0 8px 0 #b36b00, 0 15px 30px rgba(255, 140, 0, 0.4), inset 0 2px 4px rgba(255,255,255,0.7);
+            letter-spacing: 1px;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             user-select: none;
         }
+        .logo-3d:hover { transform: scale(1.08) rotate(-2deg); box-shadow: 0 10px 0 #b36b00, 0 20px 40px rgba(255, 140, 0, 0.6); }
+        .logo-3d:active { transform: translateY(4px) scale(1.02); box-shadow: 0 4px 0 #b36b00; }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0b0f17;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #3b82f6;
-        }
+        nav { display: flex; gap: 20px; }
+        nav a { text-decoration: none; color: var(--sub); font-weight: 600; font-size: 14px; transition: color 0.2s, text-shadow 0.2s; }
+        nav a:hover { color: var(--text); text-shadow: 0 0 10px rgba(255,255,255,0.4); }
 
-        .glass-card {
-            background: rgba(15, 20, 31, 0.95);
+        .controls { display: flex; gap: 10px; align-items: center; }
+        select, button {
+            background: var(--card);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .glass-card-hover {
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .glass-card-hover:hover {
-            transform: translateY(-4px);
-            border-color: rgba(59, 130, 246, 0.4);
-            box-shadow: 0 12px 30px -10px rgba(37, 99, 235, 0.25);
+        select:hover, button:hover { border-color: rgba(37, 99, 235, 0.6); background: var(--card-hover); }
+        .ip-btn { 
+            background: linear-gradient(135deg, #2563eb, #3b82f6); 
+            color: #fff; 
+            border: none; 
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4); 
+            animation: pulseGlow 3s infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4); }
+            50% { box-shadow: 0 4px 30px rgba(37, 99, 235, 0.7); }
+        }
+        .ip-btn:hover { transform: translateY(-2px); }
+
+        .hero {
+            max-width: 1200px;
+            margin: 10px auto 30px;
+            height: 340px;
+            border-radius: 24px;
+            background: radial-gradient(circle at 50% 30%, rgba(76, 29, 149, 0.4) 0%, rgba(9, 9, 12, 0.9) 80%),
+                        linear-gradient(135deg, #170f2c 0%, #0d0d15 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            animation: fadeInHero 0.8s ease;
+        }
+        @keyframes fadeInHero { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, transparent 70%);
+            top: -100px;
+            animation: floatOrb 8s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+        @keyframes floatOrb {
+            0% { transform: translate(-50px, -20px) scale(1); }
+            100% { transform: translate(50px, 30px) scale(1.15); }
         }
 
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
+        .hero h1 { 
+            font-size: 64px; 
+            font-weight: 900; 
+            margin-bottom: 6px; 
+            letter-spacing: -1.5px;
+            background: linear-gradient(180deg, #ffffff 20%, #93c5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
+            animation: titleFloat 4s ease-in-out infinite alternate;
         }
-        input[type=range]:focus {
-            outline: none;
+        @keyframes titleFloat {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-4px); }
         }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 8px;
+        .hero p { font-size: 13px; color: var(--sub); letter-spacing: 3px; text-transform: uppercase; font-weight: 700; }
+
+        .main-container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding: 0 20px; }
+
+        .exchange-section {
+            background: var(--card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideUp 0.6s ease;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .exchange-section:hover { border-color: rgba(37, 99, 235, 0.4); box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15); }
+
+        .exchange-banner {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            min-width: 240px;
+            border-radius: 18px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .exchange-banner::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg) translate(-100%, -100%);
+            animation: shine 6s infinite;
+        }
+        @keyframes shine {
+            0% { transform: rotate(45deg) translate(-100%, -100%); }
+            20% { transform: rotate(45deg) translate(100%, 100%); }
+            100% { transform: rotate(45deg) translate(100%, 100%); }
+        }
+
+        .exchange-content { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+        .presets { display: flex; gap: 10px; }
+        .preset-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .preset-btn:hover { background: var(--accent); border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3); }
+        input[type="range"] { width: 100%; accent-color: #3b82f6; cursor: pointer; height: 6px; border-radius: 3px; }
+
+        .shop-layout { display: grid; grid-template-columns: 220px 1fr; gap: 24px; }
+        .sidebar { display: flex; flex-direction: column; gap: 10px; }
+        .sidebar-btn {
+            background: var(--card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 16px;
+            border-radius: 14px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 14px;
             cursor: pointer;
-            background: #1e293b;
-            border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        input[type=range]::-webkit-slider-thumb {
-            height: 22px;
-            width: 22px;
-            border-radius: 50%;
-            background: #2563eb;
+        .sidebar-btn:hover { transform: translateX(6px); border-color: rgba(37, 99, 235, 0.5); background: var(--card-hover); }
+        .sidebar-btn.active { 
+            background: var(--accent); 
+            border-color: var(--accent); 
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5); 
+            transform: translateX(6px);
+        }
+
+        .tab-content { display: none; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; animation: tabFade 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .tab-content.active { display: grid; }
+        @keyframes tabFade { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .product-card {
+            background: var(--card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.8), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .product-card:hover { 
+            transform: translateY(-8px) scale(1.02); 
+            border-color: rgba(59, 130, 246, 0.5); 
+            background: var(--card-hover);
+            box-shadow: 0 20px 45px rgba(37, 99, 235, 0.25); 
+        }
+        .product-card:hover::before { opacity: 1; }
+
+        .pixel-img-wrap {
+            width: 88px;
+            height: 88px;
+            margin: 0 auto 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(10, 10, 15, 0.8) 75%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            box-shadow: inset 0 2px 6px rgba(255,255,255,0.15), 0 10px 25px rgba(0,0,0,0.5);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: iconFloat 5s ease-in-out infinite alternate;
+        }
+        .product-card:nth-child(even) .pixel-img-wrap { animation-delay: 1.5s; }
+        .product-card:nth-child(3) .pixel-img-wrap { animation-delay: 3s; }
+
+        @keyframes iconFloat {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-5px) rotate(2deg); }
+        }
+        .product-card:hover .pixel-img-wrap { transform: scale(1.15) translateY(-6px) rotate(4deg); }
+        .pixel-img-wrap svg { width: 60px; height: 60px; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.7)); }
+
+        .product-title { font-weight: 800; font-size: 17px; margin-bottom: 4px; letter-spacing: -0.3px; }
+        .product-price { color: var(--sub); font-size: 13px; margin-bottom: 18px; }
+        .product-price strong { color: #60a5fa; font-size: 17px; }
+        .product-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 14px;
+            font-weight: 800;
+            width: 100%;
             cursor: pointer;
-            -webkit-appearance: none;
-            margin-top: -7px;
-            box-shadow: 0 0 12px rgba(37, 99, 235, 0.8);
-            transition: transform 0.1s ease;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
-            background: #3b82f6;
-        }
+        .product-btn:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.6); }
 
-        .badge-discount {
-            background: linear-gradient(135deg, #1e3a8a, #2563eb);
-            clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
+        /* СТИЛИ МОДАЛОК (1 В 1 КАК НА ТВОИХ СНИМКАХ) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: modalFadeIn 0.3s ease;
         }
+        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-overlay.active { display: flex; }
 
-        .payment-method-card {
+        .modal-card {
+            background: var(--modal-bg);
+            border-radius: 28px;
+            width: 100%;
+            max-width: 780px;
+            padding: 36px;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            animation: modalSlideUp 0.35s ease;
+        }
+        @keyframes modalSlideUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .close-btn { position: absolute; top: 22px; right: 26px; font-size: 22px; background: none; border: none; color: var(--sub); cursor: pointer; transition: color 0.2s; }
+        .close-btn:hover { color: var(--text); }
+        .modal-grid { display: grid; grid-template-columns: 1fr 270px; gap: 28px; margin-top: 10px; }
+        .step-title { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+        .step-subtitle { color: var(--sub); font-size: 13px; margin-bottom: 20px; }
+
+        /* Варианты из Фотки 1 */
+        .duration-options { display: flex; flex-direction: column; gap: 12px; }
+        .duration-item {
+            background: #0d0d13;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
             transition: all 0.2s ease;
-            cursor: pointer;
         }
-        .payment-method-card.selected {
-            border-color: #2563eb !important;
-            background: rgba(37, 99, 235, 0.12) !important;
-            box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
+        .duration-item:hover { border-color: rgba(59, 130, 246, 0.5); }
+        .duration-item.selected { border: 2px solid #2563eb; background: rgba(37, 99, 235, 0.08); }
+        
+        .radio-dot {
+            width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); transition: all 0.2s;
+            display: inline-block; margin-right: 12px; vertical-align: middle;
+        }
+        .duration-item.selected .radio-dot { border-color: #2563eb; background: #2563eb; box-shadow: 0 0 10px #2563eb; }
+
+        .surik-badge {
+            background: rgba(37, 99, 235, 0.2);
+            color: #60a5fa;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 11px; font-weight: 800; color: var(--sub); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-input { width: 100%; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 14px 18px; border-radius: 14px; font-size: 14px; outline: none; transition: all 0.2s; }
+        .form-input:focus { border-color: var(--accent); }
+
+        .promo-link { color: #60a5fa; font-size: 13px; font-weight: 700; text-decoration: underline; cursor: pointer; display: inline-block; margin-bottom: 12px; }
+        .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--sub); cursor: pointer; margin-bottom: 8px; }
+
+        .preview-box { background: #08080c; border: 1px solid var(--border); border-radius: 20px; padding: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+        .preview-box svg { width: 76px; height: 76px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6)); }
+
+        .submit-btn { background: var(--accent); color: white; border: none; width: 100%; padding: 15px; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; margin-top: 10px; box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4); transition: all 0.2s; }
+        .submit-btn:hover { background: var(--accent-hover); transform: translateY(-2px); }
+        .back-btn { background: none; border: none; color: var(--sub); font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 12px; }
+        .back-btn:hover { color: var(--text); }
+
+        /* Переключатель способов оплаты Фотка 2 */
+        .pay-method-tabs { display: flex; gap: 10px; margin-bottom: 16px; }
+        .pay-tab-btn { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: #08080c; color: var(--sub); font-weight: 700; font-size: 13px; text-align: center; cursor: pointer; }
+        .pay-tab-btn.active { border-color: #2563eb; color: #fff; background: rgba(37, 99, 235, 0.15); }
+
+        @media(max-width: 800px) {
+            .shop-layout { grid-template-columns: 1fr; }
+            .exchange-section { flex-direction: column; }
+            header { flex-direction: column; gap: 15px; }
+            .modal-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between pb-16">
+<body>
 
-    <div>
-        <!-- HEADER -->
-        <header class="w-full max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xl font-black shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-cube"></i>
-                </div>
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <span class="font-extrabold text-lg text-white tracking-wide">PrimeBox</span>
-                        <span class="text-xs text-gray-400 font-semibold uppercase px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/50">- БОКСПВП</span>
-                    </div>
-                    <p class="text-xs text-gray-400 font-medium">Официальный магазин</p>
-                </div>
-            </div>
-
-            <nav class="flex items-center bg-slate-900/80 p-1.5 rounded-xl border border-slate-800/80">
-                <a href="#" class="px-5 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white shadow-md transition-all">ГЛАВНАЯ</a>
-                <a href="#store-section" class="px-5 py-2 rounded-lg text-sm font-semibold text-gray-400 hover:text-white transition-all">МАГАЗИН</a>
+    <header>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="logo-3d" onclick="reloadSite()">PB</div>
+            <nav>
+                <a href="https://discord.gg/S7mx7bJBF" target="_blank">💬 Дискорд</a>
+                <a href="https://t.me/Pr1mebox" target="_blank">✈️ Телеграмм</a>
             </nav>
-
-            <div class="flex items-center space-x-3">
-                <div class="flex items-center space-x-2">
-                    <a href="https://t.me" target="_blank" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-blue-400 hover:border-blue-500/50 transition-all">
-                        <i class="fa-brands fa-telegram text-sm"></i>
-                    </a>
-                    <a href="https://discord.com" target="_blank" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-indigo-400 hover:border-indigo-500/50 transition-all">
-                        <i class="fa-brands fa-discord text-sm"></i>
-                    </a>
-                    <a href="https://vk.com" target="_blank" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-blue-500 hover:border-blue-500/50 transition-all">
-                        <i class="fa-brands fa-vk text-sm"></i>
-                    </a>
-                </div>
-
-                <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 text-xs font-bold">
-                    <button class="px-2.5 py-1 rounded-lg bg-slate-800 text-white flex items-center gap-1">
-                        <span class="w-3.5 h-2.5 bg-red-600 inline-block rounded-xs"></span> RU
-                    </button>
-                    <button class="px-2.5 py-1 rounded-lg text-gray-400 hover:text-white flex items-center gap-1">
-                        <span class="w-3.5 h-2.5 bg-blue-600 inline-block rounded-xs"></span> EN
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- HERO BANNER -->
-        <section class="max-w-7xl mx-auto px-4 my-4">
-            <div class="relative w-full rounded-3xl overflow-hidden glass-card border border-blue-500/20 p-8 md:p-12 flex flex-col items-center justify-center text-center shadow-2xl">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-900/30 via-slate-900/90 to-blue-950/30 -z-10"></div>
-                <div class="absolute top-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl -z-10"></div>
-                
-                <div class="flex items-center space-x-2 text-blue-400 font-bold text-sm bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full mb-4">
-                    <i class="fa-solid fa-fire"></i>
-                    <span>PrimeBox 1.16.5 - 1.21.8</span>
-                </div>
-
-                <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-6">
-                    Добро пожаловать <br class="hidden sm:inline"/>на сайт
-                </h1>
-
-                <div class="flex flex-wrap items-center justify-center gap-3">
-                    <button onclick="copyToClipboard('https://primeb0x.github.io/PrimeBox/')" class="flex items-center space-x-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 px-4 py-2.5 rounded-2xl transition-all group">
-                        <i class="fa-solid fa-globe text-blue-400 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-sm font-bold text-gray-200">primeb0x.github.io/PrimeBox/</span>
-                        <i class="fa-regular fa-copy text-xs text-gray-400 group-hover:text-white"></i>
-                    </button>
-
-                    <button onclick="copyToClipboard('primebox.aurorix.pro')" class="flex items-center space-x-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 px-4 py-2.5 rounded-2xl transition-all group">
-                        <i class="fa-solid fa-server text-blue-400 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-sm font-bold text-gray-200">primebox.aurorix.pro</span>
-                        <i class="fa-regular fa-copy text-xs text-gray-400 group-hover:text-white"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- TITLE -->
-        <section id="store-section" class="max-w-7xl mx-auto px-4 mt-8 mb-4">
-            <h2 class="text-2xl font-black text-white">Покупка товаров</h2>
-            <p class="text-xs text-gray-400 mt-1">Выберите нужный товар и оплачивайте</p>
-        </section>
-
-        <!-- CALCULATOR (СУХАРИКИ) -->
-        <section class="max-w-7xl mx-auto px-4 mb-8">
-            <div class="glass-card rounded-2xl p-5 md:p-6 border border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-6">
-                <div class="flex items-center space-x-4 w-full lg:w-auto">
-                    <div class="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-amber-400 text-2xl shrink-0 shadow-inner">
-                        <i class="fa-solid fa-cookie-bite"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <span id="slider-crystals-title" class="font-extrabold text-lg text-white">50 Сухариков</span>
-                        </div>
-                        <span class="text-xs text-blue-400 font-semibold px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20">BoxPvP</span>
-                    </div>
-                </div>
-
-                <div class="w-full lg:flex-1 max-w-xl px-2">
-                    <div class="flex justify-between items-center text-xs text-gray-400 mb-2 font-medium">
-                        <span>Количество</span>
-                        <span id="slider-val-label" class="font-bold text-white">50</span>
-                    </div>
-                    <input type="range" id="crystal-range" min="50" max="1000" step="10" value="50" oninput="updateCalculator()">
-                    <div class="flex justify-between items-center text-[10px] text-gray-500 mt-1 font-semibold">
-                        <span>50</span>
-                        <span>500</span>
-                        <span>1000</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-end border-t lg:border-t-0 border-slate-800 pt-4 lg:pt-0">
-                    <div class="flex gap-4">
-                        <div class="bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800 text-center">
-                            <span class="block text-[10px] text-gray-500 font-semibold uppercase">Отдаёте</span>
-                            <span id="calc-price" class="font-black text-sm text-white">50 ₴</span>
-                        </div>
-                        <div class="bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800 text-center">
-                            <span class="block text-[10px] text-gray-500 font-semibold uppercase">Получаете</span>
-                            <span id="calc-crystals" class="font-black text-sm text-blue-400">50 🥖</span>
-                        </div>
-                    </div>
-
-                    <button onclick="addCustomCrystalsToCart()" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold px-6 py-3 rounded-xl transition-all shadow-lg shadow-blue-600/30 flex items-center space-x-2 shrink-0">
-                        <span>Приобрести — <span id="btn-calc-price">50 ₴</span></span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- MAIN CONTENT: SIDEBAR & GRID -->
-        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row gap-8">
-            <aside class="w-full md:w-64 shrink-0 space-y-6">
-                <div>
-                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Выберите категорию</h3>
-                    <div class="space-y-1.5" id="category-filters">
-                        <button onclick="setCategory('all')" id="cat-btn-all" class="cat-filter-btn active w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold bg-blue-600 text-white transition-all">
-                            <span class="flex items-center space-x-3">
-                                <i class="fa-solid fa-border-all text-xs"></i>
-                                <span>Все товары</span>
-                            </span>
-                        </button>
-
-                        <button onclick="setCategory('privileges')" id="cat-btn-privileges" class="cat-filter-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-gray-400 bg-slate-900/60 hover:bg-slate-800 hover:text-white border border-slate-800 transition-all">
-                            <span class="flex items-center space-x-3">
-                                <i class="fa-solid fa-crown text-xs"></i>
-                                <span>Привилегии</span>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Выберите режим</h3>
-                    <div class="space-y-1.5">
-                        <button class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold bg-slate-900 text-white border border-blue-500/40">
-                            <span>BoxPvP</span>
-                            <i class="fa-solid fa-check text-xs text-blue-400"></i>
-                        </button>
-                    </div>
-                </div>
-            </aside>
-
-            <main class="flex-1">
-                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <!-- Dynamic Product Cards -->
-                </div>
-            </main>
         </div>
-    </div>
+        <div class="controls">
+            <select id="currencySelect" onchange="updateAllPrices()">
+                <option value="UAH">₴ UAH</option>
+                <option value="RUB">₽ RUB</option>
+                <option value="USD">$ USD</option>
+            </select>
+            <button class="ip-btn" onclick="copyIP()">IP: primebox.aurorix.pro</button>
+        </div>
+    </header>
 
-    <!-- FOOTER -->
-    <footer class="max-w-7xl mx-auto px-4 mt-16 text-center text-xs text-gray-500 border-t border-slate-800/80 pt-8">
-        <p>© 2026 PrimeBox. Все права защищены. Minecraft является торговой маркой Mojang AB.</p>
-    </footer>
+    <section class="hero">
+        <h1>PrimeBox</h1>
+        <p>Надёжный проект нового поколения!</p>
+    </section>
 
-    <!-- FLOATING CART BUTTON -->
-    <button onclick="openCartModal()" class="fixed bottom-6 right-6 z-40 px-6 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold flex items-center space-x-3 shadow-xl shadow-blue-600/30 transition-transform hover:scale-105">
-        <i class="fa-solid fa-cart-shopping text-lg"></i>
-        <span>Корзина (<span id="cart-count">0</span>)</span>
-    </button>
-
-    <!-- BLUE STYLED CART MODAL -->
-    <div id="cart-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="glass-card w-full max-w-xl rounded-3xl p-6 md:p-8 border border-slate-800 relative my-auto">
-            <button onclick="closeCartModal()" class="absolute top-6 right-6 text-gray-400 hover:text-white text-xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-
-            <h2 class="text-2xl font-black text-white mb-6">Корзина</h2>
-
-            <!-- Dynamic Cart Items -->
-            <div id="cart-items-container" class="space-y-3 mb-4"></div>
-
-            <!-- Clear Cart & Total -->
-            <div class="flex justify-between items-center mb-6 text-sm">
-                <button onclick="clearCart()" class="text-gray-400 hover:text-blue-400 underline font-medium">Очистить корзину</button>
-                <div class="text-right">
-                    <span class="text-gray-400 font-semibold">Итого: </span>
-                    <span id="cart-total-price" class="text-xl font-black text-blue-400">0 ₴</span>
+    <div class="main-container">
+        
+        <!-- Секция Сухариков -->
+        <section class="exchange-section">
+            <div class="exchange-banner">
+                <div class="pixel-img-wrap" style="width:54px; height:54px; margin:0 auto 8px;">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#pearlG)"/><path d="M8 12c2-3 6-3 8 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/><defs><radialGradient id="pearlG" cx="35%" cy="35%" r="70%"><stop stop-color="#38bdf8"/><stop stop-color="#0369a1"/></radialGradient></defs></svg>
+                </div>
+                <h3 style="font-size: 18px;">Сухарики</h3>
+                <p id="exchangeRateText" style="font-size: 12px; opacity: 0.9;">1 Сухарик = 1 ₴</p>
+            </div>
+            <div class="exchange-content">
+                <div class="presets">
+                    <button class="preset-btn" onclick="setPreset(25, 25)">25 сухариков — <span class="p-val-25">25 ₴</span></button>
+                    <button class="preset-btn" onclick="setPreset(50, 50)">50 сухариков — <span class="p-val-50">50 ₴</span></button>
+                    <button class="preset-btn" onclick="setPreset(250, 200)">250 сухариков — <span class="p-val-250">200 ₴</span></button>
+                </div>
+                <input type="range" id="exRange" min="10" max="1000" step="5" value="50" oninput="onSliderMove(this.value)">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 14px; color: var(--sub);">Получаете: <strong id="exAmountText" style="color:#60a5fa">50</strong> | Отдаёте: <strong id="exPriceText" style="color:#60a5fa">50 ₴</strong></span>
+                    <button class="product-btn" style="width: auto; padding: 10px 24px;" onclick="buyCustomSuhariki()">Приобрести</button>
                 </div>
             </div>
+        </section>
 
-            <!-- Form Inputs -->
-            <form onsubmit="handleCartSubmit(event)" class="space-y-3">
-                <div class="relative">
-                    <input type="text" id="cart-nickname" required placeholder="Введите никнейм" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-500 pr-10">
-                    <i class="fa-regular fa-user absolute right-4 top-4 text-gray-500 text-sm"></i>
-                </div>
+        <!-- Каталог -->
+        <div class="shop-layout">
+            <div class="sidebar">
+                <button class="sidebar-btn active" onclick="switchTab(0, this)">⚡ Привилегии</button>
+                <button class="sidebar-btn" onclick="switchTab(1, this)">🥖 Сухарики</button>
+                <button class="sidebar-btn" onclick="switchTab(2, this)">🎁 Кейсы</button>
+                <button class="sidebar-btn" onclick="switchTab(3, this)">📦 Другое</button>
+            </div>
 
-                <div class="relative">
-                    <input type="email" id="cart-email" required placeholder="Введите почту" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-500 pr-10">
-                    <i class="fa-regular fa-envelope absolute right-4 top-4 text-gray-500 text-sm"></i>
-                </div>
-
-                <div class="relative">
-                    <input type="text" placeholder="Укажите купон, если есть" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-blue-500 pr-10">
-                    <i class="fa-solid fa-ticket absolute right-4 top-4 text-gray-500 text-sm"></i>
-                </div>
-
-                <!-- Payment Methods -->
-                <div class="pt-3">
-                    <label class="block text-xs font-bold text-gray-300 mb-3">Выберите способ оплаты:</label>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div onclick="selectPayment('world')" id="pay-world" class="payment-method-card selected bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center shrink-0">
-                                <i class="fa-solid fa-credit-card text-sm"></i>
-                            </div>
-                            <span class="text-xs font-bold text-white leading-tight">Карта / Apple Pay / Google Pay</span>
+            <div>
+                <!-- Вкладка 0: Привилегии -->
+                <div class="tab-content active" id="tab-0">
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><path d="M12 2L3 7v10c0 3.5 2.5 7.2 9 9 6.5-1.8 9-5.5 9-9V7l-9-5z" fill="url(#sh3D)"/><path d="M12 5l6 4v6.5c0 2.5-1.8 5.3-6 6.8-4.2-1.5-6-4.3-6-6.8V9l6-4z" fill="url(#sh3D2)"/><defs><linearGradient id="sh3D" x1="3" y1="2" x2="21" y2="26"><stop stop-color="#3b82f6"/><stop stop-color="#1d4ed8"/></linearGradient><linearGradient id="sh3D2" x1="6" y1="5" x2="18" y2="22"><stop stop-color="#60a5fa"/><stop stop-color="#1e40af"/></linearGradient></defs></svg>
                         </div>
-
-                        <div onclick="selectPayment('mc')" id="pay-mc" class="payment-method-card bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center shrink-0">
-                                <i class="fa-brands fa-cc-mastercard text-base"></i>
-                            </div>
-                            <span class="text-xs font-bold text-white leading-tight">Mastercard / Visa (UAH)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Terms Checkbox -->
-                <div class="flex items-start space-x-2 pt-2">
-                    <input type="checkbox" id="terms-check" required class="mt-1 rounded bg-slate-900 border-slate-800 text-blue-600 focus:ring-0">
-                    <label for="terms-check" class="text-[11px] text-gray-400 leading-tight">
-                        Я принимаю условия <a href="#" class="text-blue-400 underline">пользовательского соглашения</a>, <a href="#" class="text-blue-400 underline">агентский договор</a> и <a href="#" class="text-blue-400 underline">договор пожертвования</a>
-                    </label>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" id="cart-submit-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-4 rounded-xl transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center space-x-2 text-sm mt-4">
-                    <i class="fa-solid fa-cart-shopping text-xs"></i>
-                    <span>Оплатить — <span id="cart-btn-price">0 ₴</span></span>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed top-6 right-6 z-50 bg-slate-900 border border-blue-500/50 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 transition-all duration-300 transform translate-y-[-100px] opacity-0">
-        <i class="fa-solid fa-circle-check text-blue-400 text-lg"></i>
-        <span id="toast-message" class="text-sm font-semibold">Перемещено в корзину!</span>
-    </div>
-
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        const products = [
-            {
-                id: 1,
-                title: 'Warrior',
-                category: 'privileges',
-                badge: 'СТАРТОВЫЙ',
-                details: 'BoxPvP (30дн.)',
-                price: 25,
-                currency: '₴',
-                icon: 'fa-shield-halved'
-            },
-            {
-                id: 2,
-                title: 'Master',
-                category: 'privileges',
-                badge: 'ПОПУЛЯРНОЕ',
-                details: 'BoxPvP (30дн.)',
-                price: 65,
-                currency: '₴',
-                icon: 'fa-khanda'
-            },
-            {
-                id: 3,
-                title: 'Elite',
-                category: 'privileges',
-                badge: 'ХИТ ПРОДАЖ',
-                details: 'BoxPvP (30дн.)',
-                price: 135,
-                currency: '₴',
-                icon: 'fa-gem'
-            },
-            {
-                id: 4,
-                title: 'Phantom',
-                category: 'privileges',
-                badge: 'ТОП ВЫБОР',
-                details: 'BoxPvP (30дн.)',
-                price: 250,
-                currency: '₴',
-                icon: 'fa-ghost'
-            },
-            {
-                id: 5,
-                title: 'Custom',
-                category: 'privileges',
-                badge: 'МАКСИМУМ',
-                details: 'BoxPvP (Навсегда)',
-                price: 680,
-                currency: '₴',
-                icon: 'fa-crown'
-            }
-        ];
-
-        let cart = [];
-        let currentCategory = 'all';
-
-        function renderProducts() {
-            const grid = document.getElementById('products-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-
-            const filtered = currentCategory === 'all' 
-                ? products 
-                : products.filter(p => p.category === currentCategory);
-
-            filtered.forEach(product => {
-                const cardHtml = `
-                    <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between border border-slate-800/80 relative">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="badge-discount text-[10px] font-black tracking-wider text-white px-2.5 py-1 rounded-r-md uppercase shadow-sm">
-                                ${product.badge}
-                            </span>
-                        </div>
-
-                        <div class="w-full h-36 bg-gradient-to-b from-blue-900/20 to-slate-900/80 rounded-xl flex items-center justify-center my-2 p-2 border border-slate-800/50">
-                            <i class="fa-solid ${product.icon} text-5xl text-blue-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]"></i>
-                        </div>
-
                         <div>
-                            <h3 class="font-extrabold text-base text-white leading-snug mb-1">${product.title}</h3>
-                            <p class="text-xs text-gray-400 font-medium mb-4">${product.details}</p>
+                            <div class="product-title">Warrior</div>
+                            <div class="product-price">от <strong class="price-val" data-uah="25">25 ₴</strong></div>
                         </div>
+                        <button class="product-btn" onclick="openPrivilegeModal('Warrior', 'elytra', 25, 57, 100)">Купить</button>
+                    </div>
 
-                        <div class="flex items-center justify-between border-t border-slate-800/80 pt-3 mt-auto">
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><path d="M7 3h10v18H7z" fill="url(#totG)"/><path d="M9 7h6M9 11h6M10 15h4" stroke="#78350f" stroke-width="2" stroke-linecap="round"/><circle cx="9.5" cy="5.5" r="1.5" fill="#34d399"/><circle cx="14.5" cy="5.5" r="1.5" fill="#34d399"/><defs><linearGradient id="totG" x1="7" y1="3" x2="17" y2="21"><stop stop-color="#fde047"/><stop stop-color="#ca8a04"/></linearGradient></defs></svg>
+                        </div>
+                        <div>
+                            <div class="product-title">Master</div>
+                            <div class="product-price">от <strong class="price-val" data-uah="55">55 ₴</strong></div>
+                        </div>
+                        <button class="product-btn" onclick="openPrivilegeModal('Master', 'totem', 55, 120, 220)">Купить</button>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#eyeG)"/><ellipse cx="12" cy="12" rx="4" ry="8" fill="#34d399"/><circle cx="12" cy="12" r="2.5" fill="#022c22"/><defs><radialGradient id="eyeG" cx="30%" cy="30%" r="70%"><stop stop-color="#34d399"/><stop stop-color="#047857"/></radialGradient></defs></svg>
+                        </div>
+                        <div>
+                            <div class="product-title">Elite</div>
+                            <div class="product-price">от <strong class="price-val" data-uah="135">135 ₴</strong></div>
+                        </div>
+                        <button class="product-btn" onclick="openPrivilegeModal('Elite', 'eye', 135, 300, 500)">Купить</button>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#phG)"/><path d="M12 6a6 6 0 1 0 6 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" fill="none"/><defs><radialGradient id="phG" cx="30%" cy="30%" r="70%"><stop stop-color="#38bdf8"/><stop stop-color="#0369a1"/></radialGradient></defs></svg>
+                        </div>
+                        <div>
+                            <div class="product-title">Phantom</div>
+                            <div class="product-price">от <strong class="price-val" data-uah="250">250 ₴</strong></div>
+                        </div>
+                        <button class="product-btn" onclick="openPrivilegeModal('Phantom', 'heart', 250, 550, 900)">Купить</button>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#crG)"/><path d="M4 16l4-7 4 3 4-3 4 7H4z" fill="#fef08a"/><circle cx="8" cy="8" r="1.5" fill="#ef4444"/><circle cx="12" cy="7" r="1.5" fill="#3b82f6"/><circle cx="16" cy="8" r="1.5" fill="#10b981"/><defs><radialGradient id="crG" cx="35%" cy="35%" r="70%"><stop stop-color="#facc15"/><stop stop-color="#ca8a04"/></radialGradient></defs></svg>
+                        </div>
+                        <div>
+                            <div class="product-title">Custom</div>
+                            <div class="product-price">от <strong class="price-val" data-uah="670">670 ₴</strong></div>
+                        </div>
+                        <button class="product-btn" onclick="openPrivilegeModal('Custom', 'fire', 670, 1400, 2200)">Купить</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка 1: Сухарики -->
+                <div class="tab-content" id="tab-1">
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#pearlG)"/><path d="M8 12c2-3 6-3 8 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>
+                        </div>
+                        <div>
+                            <div class="product-title">25 Сухариков</div>
+                            <div class="product-price"><strong class="price-val" data-uah="25">25 ₴</strong></div>
+                        </div>
+                        <button class="product-btn" onclick="openDirectModal('25 Сухариков', 25)">Купить</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#pearlG)"/><path d="M8 12c2-3 6-3 8 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>
+                        </div>
+                        <div>
+                            <div class="product-title">50 Сухариков</div>
+                            <div class="product-price"><strong class="price-val" data-uah="50">50 ₴</strong></div>
+                        </div>
+                        <button class="product-btn" onclick="openDirectModal('50 Сухариков', 50)">Купить</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#pearlG)"/><path d="M8 12c2-3 6-3 8 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>
+                        </div>
+                        <div>
+                            <div class="product-title">250 Сухариков</div>
+                            <div class="product-price"><strong class="price-val" data-uah="200">200 ₴</strong></div>
+                        </div>
+                        <button class="product-btn" onclick="openDirectModal('250 Сухариков', 200)">Купить</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка 2: Кейсы -->
+                <div class="tab-content" id="tab-2">
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="3" fill="url(#cs1)"/><path d="M3 12h18M10 12v5h4v-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M12 3v5" stroke="#fbcfe8" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="cs1" x1="3" y1="8" x2="21" y2="21"><stop stop-color="#fb7185"/><stop stop-color="#be123c"/></linearGradient></defs></svg>
+                        </div>
+                        <div>
+                            <div class="product-title">Кейс с титулом</div>
+                            <div class="product-price">от <strong class="price-val" data-uah="45">45 ₴</strong></div>
+                        </div>
+                        <button class="product-btn" onclick="openDirectModal('Кейс с титулом', 45)">Купить</button>
+                    </div>
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="3" fill="url(#cs2)"/><path d="M3 12h18M10 12v5h4v-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M12 3v5" stroke="#a7f3d0" stroke-width="2.5" stroke-linecap="round"/><defs><linearGradient id="cs2" x1="3" y1="8" x2="21" y2="21"><stop stop-color="#34d399"/><stop stop-color="#047857"/></radialGradient></defs></svg>
+                        </div>
+                        <div>
+                            <div class="product-title">Кейс с донат валютой</div>
+                            <div class="product-price">от <strong class="price-val" data-uah="75">75 ₴</strong></div>
+                        </div>
+                        <button class="product-btn" onclick="openDirectModal('Кейс с донат валютой', 75)">Купить</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка 3: Другое -->
+                <div class="tab-content" id="tab-3">
+                    <div class="product-card">
+                        <div class="pixel-img-wrap">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.5 6.5L22 10l-5 5 1.5 7L12 18.5 5.5 22 7 15l-5-5 6.5-1.5L12 2z" fill="url(#unb)"/><defs><linearGradient id="unb" x1="2" y1="2" x2="22" y2="22"><stop stop-color="#c084fc"/><stop stop-color="#6b21a8"/></linearGradient></defs></svg>
+                        </div>
+                        <div>
+                            <div class="product-title">Разбан</div>
+                            <div class="product-price">от <strong class="price-val" data-uah="150">150 ₴</strong></div>
+                        </div>
+                        <button class="product-btn" onclick="openDirectModal('Разбан на сервере', 150)">Купить</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ШАГ 1 МОДАЛКИ (ОДИН В ОДИН КАК НА ФОТО 1) -->
+    <div class="modal-overlay" id="modalStep1">
+        <div class="modal-card">
+            <button class="close-btn" onclick="closeModal('modalStep1')">✕</button>
+            <div class="modal-grid">
+                <div>
+                    <div class="step-title">Шаг 1</div>
+                    <div class="step-subtitle">Выберите позицию</div>
+                    
+                    <div class="duration-options">
+                        <div class="duration-item selected" onclick="selectOpt(this, 1)">
                             <div>
-                                <span class="text-base font-black text-white">${product.price} ${product.currency}</span>
+                                <span class="radio-dot"></span>
+                                <strong style="font-size: 15px;">1 месяц</strong>
+                                <div style="font-size: 12px; color: var(--sub); margin-left: 32px;" id="p1_price">25 ₴</div>
                             </div>
-                            <button onclick="addToCart(${product.id})" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md shadow-blue-600/30">
-                                Купить
-                            </button>
+                            <div class="surik-badge">+3 суриков</div>
                         </div>
-                    </div>
-                `;
-                grid.innerHTML += cardHtml;
-            });
-        }
 
-        function addToCart(productId) {
-            const item = products.find(p => p.id === productId);
-            if (item) {
-                cart.push({...item, cartItemId: Date.now()});
-                updateCartUI();
-                showToast("Перемещено в корзину!");
-            }
-        }
-
-        function addCustomCrystalsToCart() {
-            const crystals = document.getElementById('crystal-range').value;
-            const customItem = {
-                id: Date.now(),
-                title: `${crystals} Сухариков`,
-                details: 'BoxPvP',
-                price: parseInt(crystals),
-                currency: '₴',
-                icon: 'fa-cookie-bite'
-            };
-            cart.push({...customItem, cartItemId: Date.now()});
-            updateCartUI();
-            showToast("Перемещено в корзину!");
-        }
-
-        function removeFromCart(cartItemId) {
-            cart = cart.filter(item => item.cartItemId !== cartItemId);
-            updateCartUI();
-            renderCartModalItems();
-        }
-
-        function clearCart() {
-            cart = [];
-            updateCartUI();
-            renderCartModalItems();
-            showToast("Корзина очищена!");
-        }
-
-        function updateCartUI() {
-            document.getElementById('cart-count').innerText = cart.length;
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            document.getElementById('cart-total-price').innerText = total + ' ₴';
-            document.getElementById('cart-btn-price').innerText = total + ' ₴';
-        }
-
-        function renderCartModalItems() {
-            const container = document.getElementById('cart-items-container');
-            if (cart.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fa-solid fa-cart-flatbed text-3xl mb-2"></i>
-                        <p class="text-sm font-semibold">Ваша корзина пуста</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = '';
-            cart.forEach(item => {
-                container.innerHTML += `
-                    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400">
-                                <i class="fa-solid ${item.icon || 'fa-box'}"></i>
-                            </div>
+                        <div class="duration-item" onclick="selectOpt(this, 2)">
                             <div>
-                                <h4 class="text-sm font-extrabold text-white">${item.title}</h4>
-                                <span class="text-xs text-gray-400">${item.details}</span>
+                                <span class="radio-dot"></span>
+                                <strong style="font-size: 15px;">3 месяца</strong>
+                                <div style="font-size: 12px; color: var(--sub); margin-left: 32px;" id="p2_price">57 ₴</div>
                             </div>
+                            <div class="surik-badge">+6 суриков</div>
                         </div>
 
-                        <div class="flex items-center space-x-4">
-                            <div class="text-right">
-                                <span class="text-sm font-black text-blue-400">${item.price} ${item.currency}</span>
+                        <div class="duration-item" onclick="selectOpt(this, 3)">
+                            <div>
+                                <span class="radio-dot"></span>
+                                <strong style="font-size: 15px;">навсегда</strong>
+                                <div style="font-size: 12px; color: var(--sub); margin-left: 32px;" id="p3_price">100 ₴</div>
                             </div>
-                            <button onclick="removeFromCart(${item.cartItemId})" class="text-gray-500 hover:text-red-500 transition-colors">
-                                <i class="fa-regular fa-trash-can text-sm"></i>
-                            </button>
+                            <div class="surik-badge">+10 суриков</div>
                         </div>
                     </div>
-                `;
+
+                    <button class="submit-btn" style="margin-top: 20px;" onclick="goToStep2()">Далее</button>
+                </div>
+
+                <div class="preview-box">
+                    <div class="pixel-img-wrap" style="width: 70px; height: 70px;">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L3 7v10c0 3.5 2.5 7.2 9 9 6.5-1.8 9-5.5 9-9V7l-9-5z" fill="#2563eb"/></svg>
+                    </div>
+                    <div class="step-title" style="font-size: 20px;" id="previewTitle">Warrior</div>
+                    <div style="font-size: 13px; color: #60a5fa; font-weight: 700;" id="previewDurationText">1 месяц</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ШАГ 2 МОДАЛКИ (ОДИН В ОДИН КАК НА ФОТО 2 С ВЫБОРОМ ОПЛАТЫ) -->
+    <div class="modal-overlay" id="modalStep2">
+        <div class="modal-card">
+            <button class="close-btn" onclick="closeModal('modalStep2')">✕</button>
+            <div class="modal-grid">
+                <div>
+                    <div class="step-title">Шаг 2</div>
+                    <div class="step-subtitle">Ваши данные</div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">ИГРОВОЙ НИК *</label>
+                        <input type="text" id="playerNameInput" class="form-input" placeholder="Steve">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">E-MAIL *</label>
+                        <input type="email" id="playerEmailInput" class="form-input" placeholder="you@mail.ru">
+                    </div>
+
+                    <div class="promo-link">У меня есть промокод</div>
+
+                    <label class="checkbox-label">
+                        <input type="checkbox" checked> Я принимаю условия соглашения
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" checked> Подтверждаю, что карта принадлежит мне
+                    </label>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label class="form-label">СПОСОБ ОПЛАТЫ</label>
+                        <div class="pay-method-tabs">
+                            <div class="pay-tab-btn active" id="tabCard" onclick="setPayMethod('card')">💳 Карта (UAH)</div>
+                            <div class="pay-tab-btn" id="tabTon" onclick="setPayMethod('ton')">💎 TON Крипта</div>
+                        </div>
+                    </div>
+
+                    <!-- Оплата TON Connect (виджет) -->
+                    <div id="tonContainer" style="display: none; margin-bottom: 15px;">
+                        <div id="ton-connect-button"></div>
+                    </div>
+
+                    <button class="submit-btn" id="mainPayBtn" onclick="processPayment()">Приобрести →</button>
+                    <button class="back-btn" onclick="backToStep1()">‹ Назад</button>
+                </div>
+
+                <div class="preview-box">
+                    <div class="pixel-img-wrap" style="width: 70px; height: 70px;">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L3 7v10c0 3.5 2.5 7.2 9 9 6.5-1.8 9-5.5 9-9V7l-9-5z" fill="#2563eb"/></svg>
+                    </div>
+                    <div class="step-title" style="font-size: 20px;" id="previewTitle2">Warrior</div>
+                    <div style="font-size: 13px; color: #60a5fa; font-weight: 700; margin-bottom: 15px;" id="previewDurationText2">1 месяц</div>
+
+                    <div style="background: rgba(0,0,0,0.5); width: 100%; padding: 12px; border-radius: 12px; text-align: left; border: 1px solid var(--border);">
+                        <div style="font-size: 11px; color: var(--sub);">К оплате</div>
+                        <div style="font-size: 20px; font-weight: 900;" id="finalPriceDisplay">25 ₴</div>
+                        <div style="font-size: 11px; color: #34d399; margin-top: 4px; font-weight: 800;" id="surikBonusText">+3 суриков</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentItem = { name: 'Warrior', prices: [25, 57, 100], selectedOpt: 0 };
+        let selectedPayMethod = 'card';
+
+        const rates = { UAH: 1, RUB: 2.3, USD: 0.025 };
+        const symbols = { UAH: "₴", RUB: "₽", USD: "$" };
+
+        function reloadSite() {
+            document.body.classList.add('reloading');
+            setTimeout(() => location.reload(), 300);
+        }
+
+        function copyIP() {
+            navigator.clipboard.writeText("primebox.aurorix.pro");
+            alert("IP сервера скопирован в буфер обмена!");
+        }
+
+        function switchTab(index, btn) {
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`tab-${index}`).classList.add('active');
+        }
+
+        function updateAllPrices() {
+            const currency = document.getElementById('currencySelect').value;
+            const rate = rates[currency];
+            const sym = symbols[currency];
+
+            document.querySelectorAll('.price-val').forEach(el => {
+                const uahVal = parseFloat(el.getAttribute('data-uah'));
+                const converted = Math.round(uahVal * rate);
+                el.innerText = `${converted} ${sym}`;
             });
         }
 
-        function openCartModal() {
-            renderCartModalItems();
-            document.getElementById('cart-modal').classList.remove('hidden');
+        function onSliderMove(val) {
+            document.getElementById('exAmountText').innerText = val;
+            document.getElementById('exPriceText').innerText = val + " ₴";
         }
 
-        function closeCartModal() {
-            document.getElementById('cart-modal').classList.add('hidden');
+        function setPreset(amount, price) {
+            document.getElementById('exRange').value = amount;
+            onSliderMove(amount);
         }
 
-        function selectPayment(method) {
-            document.getElementById('pay-world').classList.remove('selected');
-            document.getElementById('pay-mc').classList.remove('selected');
-
-            if (method === 'world') {
-                document.getElementById('pay-world').classList.add('selected');
-            } else {
-                document.getElementById('pay-mc').classList.add('selected');
-            }
+        function buyCustomSuhariki() {
+            const val = document.getElementById('exRange').value;
+            openDirectModal(val + " Сухариков", val);
         }
 
-        function setCategory(cat) {
-            currentCategory = cat;
-            renderProducts();
-
-            const buttons = document.querySelectorAll('.cat-filter-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white', 'font-bold');
-                btn.classList.add('bg-slate-900/60', 'text-gray-400', 'font-semibold');
-            });
-
-            const activeBtn = document.getElementById(`cat-btn-${cat}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('bg-slate-900/60', 'text-gray-400', 'font-semibold');
-                activeBtn.classList.add('bg-blue-600', 'text-white', 'font-bold');
-            }
-        }
-
-        function updateCalculator() {
-            const val = document.getElementById('crystal-range').value;
-            document.getElementById('slider-crystals-title').innerText = `${val} Сухариков`;
-            document.getElementById('slider-val-label').innerText = val;
-            document.getElementById('calc-price').innerText = `${val} ₴`;
-            document.getElementById('calc-crystals').innerText = `${val} 🥖`;
-            document.getElementById('btn-calc-price').innerText = `${val} ₴`;
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("Скопировано в буфер обмена!");
-            });
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = msg;
-            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-[-100px]', 'opacity-0');
-            }, 2500);
-        }
-
-        /* WAYFORPAY SECURE CHECKOUT WITH HASH SIGNATURE */
-        function handleCartSubmit(e) {
-            e.preventDefault();
+        function openPrivilegeModal(name, icon, p1, p2, p3) {
+            currentItem = { name: name, prices: [p1, p2, p3], selectedOpt: 0 };
+            document.getElementById('p1_price').innerText = p1 + " ₴";
+            document.getElementById('p2_price').innerText = p2 + " ₴";
+            document.getElementById('p3_price').innerText = p3 + " ₴";
+            document.getElementById('previewTitle').innerText = name;
+            document.getElementById('previewTitle2').innerText = name;
             
-            if (cart.length === 0) {
-                showToast("Корзина пуста!");
+            selectOpt(document.querySelectorAll('.duration-item')[0], 1);
+            document.getElementById('modalStep1').classList.add('active');
+        }
+
+        function openDirectModal(name, price) {
+            currentItem = { name: name, prices: [price, price, price], selectedOpt: 0 };
+            document.getElementById('previewTitle2').innerText = name;
+            document.getElementById('previewDurationText2').innerText = "Товар";
+            document.getElementById('finalPriceDisplay').innerText = price + " ₴";
+            document.getElementById('surikBonusText').innerText = "";
+            document.getElementById('modalStep2').classList.add('active');
+        }
+
+        function selectOpt(el, optNum) {
+            document.querySelectorAll('.duration-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            currentItem.selectedOpt = optNum - 1;
+
+            const durNames = ["1 месяц", "3 месяца", "навсегда"];
+            const bonuses = ["+3 суриков", "+6 суриков", "+10 суриков"];
+
+            document.getElementById('previewDurationText').innerText = durNames[currentItem.selectedOpt];
+            document.getElementById('previewDurationText2').innerText = durNames[currentItem.selectedOpt];
+            document.getElementById('finalPriceDisplay').innerText = currentItem.prices[currentItem.selectedOpt] + " ₴";
+            document.getElementById('surikBonusText').innerText = bonuses[currentItem.selectedOpt];
+        }
+
+        function goToStep2() {
+            document.getElementById('modalStep1').classList.remove('active');
+            document.getElementById('modalStep2').classList.add('active');
+        }
+
+        function backToStep1() {
+            document.getElementById('modalStep2').classList.remove('active');
+            document.getElementById('modalStep1').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function setPayMethod(method) {
+            selectedPayMethod = method;
+            if (method === 'card') {
+                document.getElementById('tabCard').classList.add('active');
+                document.getElementById('tabTon').classList.remove('active');
+                document.getElementById('tonContainer').style.display = 'none';
+                document.getElementById('mainPayBtn').innerText = 'Приобрести (Карта) →';
+            } else {
+                document.getElementById('tabTon').classList.add('active');
+                document.getElementById('tabCard').classList.remove('active');
+                document.getElementById('tonContainer').style.display = 'block';
+                document.getElementById('mainPayBtn').innerText = 'Оплатить через TON →';
+            }
+        }
+
+        // --- ЛОГИКА ОПЛАТЫ ---
+        function processPayment() {
+            const nickname = document.getElementById('playerNameInput').value.trim();
+            if (!nickname) {
+                alert("Пожалуйста, введите ваш игровой ник!");
                 return;
             }
 
-            const nickname = document.getElementById('cart-nickname').value.trim();
-            const email = document.getElementById('cart-email').value.trim();
-            const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
-            const itemsList = cart.map(item => item.title).join(', ');
+            const price = currentItem.prices[currentItem.selectedOpt];
 
-            const merchantAccount = "ewnec_github_io"; 
-            const merchantDomainName = "primeb0x.github.io";
-            const orderReference = "BOX_" + Date.now();
-            const orderDate = Math.floor(Date.now() / 1000);
-            const amount = totalAmount;
-            const currency = "UAH";
-            const productName = itemsList;
-            const productCount = 1;
-            const productPrice = totalAmount;
-            const secretKey = "9cc2d27a3854fb947f42baff20eef9be2932126d";
-
-            const signatureString = [
-                merchantAccount,
-                merchantDomainName,
-                orderReference,
-                orderDate,
-                amount,
-                currency,
-                productName,
-                productCount,
-                productPrice
-            ].join(';');
-
-            const merchantSignature = CryptoJS.HmacMD5(signatureString, secretKey).toString(CryptoJS.enc.Hex);
-
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'https://secure.wayforpay.com/pay';
-            form.acceptCharset = 'utf-8';
-
-            const fields = {
-                merchantAccount: merchantAccount,
-                merchantDomainName: merchantDomainName,
-                orderReference: orderReference,
-                orderDate: orderDate,
-                amount: amount,
-                currency: currency,
-                productName: productName,
-                productCount: productCount,
-                productPrice: productPrice,
-                clientEmail: email,
-                clientFirstName: nickname,
-                merchantSignature: merchantSignature
-            };
-
-            for (const key in fields) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = fields[key];
-                form.appendChild(input);
+            if (selectedPayMethod === 'card') {
+                // Перенаправление на твой Donatello
+                const donatelloUrl = `https://donatello.to/PrimeBox?amount=${price}&message=${encodeURIComponent('Покупка: ' + currentItem.name + ' | Ник: ' + nickname)}`;
+                window.open(donatelloUrl, '_blank');
+            } else {
+                // Вызов транзакции TON Connect
+                sendTonPayment(price, nickname);
             }
-
-            document.body.appendChild(form);
-            form.submit();
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            renderProducts();
-            updateCalculator();
+        // --- TON CONNECT ИНТЕГРАЦИЯ ---
+        const MY_WALLET = "UQAxLYOYVyD2n6dqzyF4OeGapfDXeXIrzr_GFUHYtpNv2HgP";
+
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://pr1mebox.store/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-button'
         });
+
+        async function sendTonPayment(priceUah, nickname) {
+            const tonAmount = Math.max(0.1, (priceUah * 0.005)).toFixed(2);
+            const nanoAmount = (tonAmount * 1000000000).toString();
+
+            const transaction = {
+                validUntil: Math.floor(Date.now() / 1000) + 600,
+                messages: [
+                    {
+                        address: MY_WALLET,
+                        amount: nanoAmount,
+                    }
+                ]
+            };
+
+            try {
+                const result = await tonConnectUI.sendTransaction(transaction);
+                alert(`Оплата ${tonAmount} TON отправлена! Ник: ${nickname}`);
+                closeModal('modalStep2');
+            } catch (error) {
+                console.error(error);
+                alert("Оплата отменена или кошелек не подключен.");
+            }
+        }
     </script>
 </body>
 </html>
