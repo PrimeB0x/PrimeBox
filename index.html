@@ -613,8 +613,108 @@
     <div class="modal-overlay" id="modalStep1">
         <div class="modal-card">
             <button class="close-btn" onclick="closeModal('modalStep1')">✕</button>
-            <!-- (Остальная часть модалок и скриптов твоего сайта сохранилась в полном объеме) -->
+            <div id="modalStep1Content"></div>
         </div>
     </div>
+
+    <!-- ШАГ 2 МОДАЛКИ -->
+    <div class="modal-overlay" id="modalStep2">
+        <div class="modal-card">
+            <button class="close-btn" onclick="closeModal('modalStep2')">✕</button>
+            <div id="modalStep2Content"></div>
+        </div>
+    </div>
+
+    <script>
+        // JS функции твоего сайта
+        function switchTab(index, btn) {
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + index).classList.add('active');
+        }
+
+        function copyIP() {
+            navigator.clipboard.writeText('primebox.aurorix.pro');
+            alert('IP скопирован в буфер обмена!');
+        }
+
+        function reloadSite() {
+            document.body.classList.add('reloading');
+            setTimeout(() => { location.reload(); }, 300);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openDirectModal(title, price) {
+            const modal = document.getElementById('modalStep1');
+            const content = document.getElementById('modalStep1Content');
+            content.innerHTML = `
+                <div class="step-title">Покупка: ${title}</div>
+                <div class="step-subtitle">Цена: ${price} ₴</div>
+                <div class="form-group">
+                    <label class="form-label">Ваш ник в Minecraft</label>
+                    <input type="text" class="form-input" id="playerNick" placeholder="Введите ник...">
+                </div>
+                <button class="submit-btn" onclick="alert('Переход к оплате...')">Оплатить ${price} ₴</button>
+            `;
+            modal.classList.add('active');
+        }
+
+        function openPrivilegeModal(title, icon, p1, p2, p3) {
+            const modal = document.getElementById('modalStep1');
+            const content = document.getElementById('modalStep1Content');
+            content.innerHTML = `
+                <div class="step-title">Привилегия: ${title}</div>
+                <div class="step-subtitle">Выберите срок или уровень</div>
+                <div class="duration-options">
+                    <div class="duration-item selected" onclick="selectDur(this)">
+                        <span><span class="radio-dot"></span> 30 дней</span>
+                        <strong>${p1} ₴</strong>
+                    </div>
+                    <div class="duration-item" onclick="selectDur(this)">
+                        <span><span class="radio-dot"></span> 90 дней</span>
+                        <strong>${p2} ₴</strong>
+                    </div>
+                    <div class="duration-item" onclick="selectDur(this)">
+                        <span><span class="radio-dot"></span> Навсегда</span>
+                        <strong>${p3} ₴</strong>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">Ваш ник в Minecraft</label>
+                    <input type="text" class="form-input" id="playerNick" placeholder="Введите ник...">
+                </div>
+                <button class="submit-btn" onclick="alert('Переход к оплате...')">Продолжить</button>
+            `;
+            modal.classList.add('active');
+        }
+
+        function selectDur(el) {
+            document.querySelectorAll('.duration-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function onSliderMove(val) {
+            document.getElementById('exAmountText').innerText = val;
+            document.getElementById('exPriceText').innerText = val + ' ₴';
+        }
+
+        function setPreset(amount, price) {
+            document.getElementById('exRange').value = amount;
+            onSliderMove(amount);
+        }
+
+        function buyCustomSuhariki() {
+            const val = document.getElementById('exRange').value;
+            openDirectModal(val + ' Сухариков', val);
+        }
+
+        function updateAllPrices() {
+            // Заглушка под смену валюты
+        }
+    </script>
 </body>
 </html>
